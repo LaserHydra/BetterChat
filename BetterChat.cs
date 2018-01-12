@@ -14,7 +14,7 @@ using Facepunch.Math;
 
 namespace Oxide.Plugins
 {
-    [Info("Better Chat", "LaserHydra", "5.0.15", ResourceId = 979)]
+    [Info("Better Chat", "LaserHydra", "5.0.16", ResourceId = 979)]
     [Description("Manage Chat Groups, Customize Colors And Add Titles.")]
     internal class BetterChat : CovalencePlugin
     {
@@ -62,7 +62,7 @@ namespace Oxide.Plugins
                     ["Title"] = string.Join(" ", Titles.ToArray()),
                     ["Username"] = $"[#{Username.GetUniversalColor()}][+{Username.Size}]{StripRichText(Player.Name)}[/+][/#]",
                     ["Group"] = PrimaryGroup,
-                    ["Message"] = $"[#{Message.GetUniversalColor()}][+{Message.Size}]{Text}[/+][/#]",
+                    ["Message"] = $"[#{Message.GetUniversalColor()}][+{Message.Size}]{StripRichText(Text)}[/+][/#]",
                     ["ID"] = Player.Id,
                     ["Time"] = DateTime.Now.TimeOfDay.ToString(),
                     ["Date"] = DateTime.Now.ToString()
@@ -788,7 +788,9 @@ namespace Oxide.Plugins
             {
 #if RUST || HURTWORLD || UNTURNED
                 "<b>", "</b>",
-                "<i>", "</i>"
+                "<i>", "</i>",
+                "</size>",
+                "</color>"
 #endif
             };
 
