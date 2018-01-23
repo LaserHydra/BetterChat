@@ -39,13 +39,23 @@ You can do a lot with the formatting of a group. You can customize it with:
 
 ## Configuration
 
-You can configure the settings in the `BetterChat.json` file under the `oxide/config` directory.
+You can configure the settings in the `BetterChat.json` file under the `oxide/config` directory. It's recommended to use a JSON editor for editing the config file or validation site such as jsonlint.com to prevent syntax errors.
+
+The file should look like this (in a code/text editor):
 
 ```json
 {
-    "Maximal Titles": 3
+  "Maximal Characters Per Message": 128,
+  "Maximal Titles": 3
 }
 ```
+
+Every setting looks like this: `"Key": Value`
+
+The key is the name/description of the setting while the value is the actual value you want to set it to. For example, to enable the word filter, you see under/inside `"Word Filter" { ... }` there is `"Enabled": false`. To enable it, you change it to `"Enabled": true`.
+
+- **Maximal Titles** -- The maximum amount of titles to display
+- **Maximal Characters Per Message** -- The maximum characters per message to display
 
 ## Localization
 
@@ -64,6 +74,15 @@ The default messages are in the `BetterChat.json` file under the `oxide/lang/en`
   "Removed From Group": "{player} was removed from group '{group}'."
 }
 ```
+
+## Frequently Asked Questions
+
+**Question:** Why do clan tags not show? \
+**Answer:** Please install the Clan Tags plugin to show them with Better Chat.
+
+**Question:** I can't remove myself from the default/moderator/admin group \
+**Answer:** Oxide automatically adds players to their appropriate groups. Everybody is added to the default group. If you are just trying to hide the default title for your admins, please look for the `HiddenIfNotPrimary` setting.
+
 
 ## For Developers
 
