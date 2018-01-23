@@ -100,4 +100,4 @@ private ChatGroup.SetFieldResult? API_SetGroupField(string group, string field, 
 private bool API_GroupExists(string group)
 ```
 
-Easily edit your `oxide/data/BetterChat.json` file using the [BetterChat Group Manager](https://files.laserhydra.com/tools/groupmanager/Install%20BetterChat%20GroupManager.exe) ***(Windows only)***.
+Easily edit your `oxide/data/BetterChat.json` file using the [BetterChat Group Manager](https://files.laserhydra.com/tools/groupmanager/Install%20BetterChat%20GroupManager.exe) _(Windows only)_.
