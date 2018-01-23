@@ -90,4 +90,32 @@ Dictionary<string, object>
 
 ### API Calls
 
-Easily edit your `oxide/data/BetterChat.json` file using the [BetterChat Group Manager](https://files.laserhydra.com/tools/groupmanager/Install%20BetterChat%20GroupManager.exe) _(Windows only)_.
+```csharp
+private bool API_AddGroup(string group)
+```
+
+```csharp
+private List<object> API_GetUserGroups(IPlayer player)
+```
+
+```csharp
+private void API_RegisterThirdPartyTitle(Plugin plugin, Func<IPlayer, string> titleGetter)
+```
+
+```csharp
+private string API_GetFormattedMessage(IPlayer player, string message, bool console = false)
+```
+
+```csharp
+private string API_GetFormattedUsername(IPlayer player)
+```
+
+```csharp
+private ChatGroup.SetFieldResult? API_SetGroupField(string group, string field, string value)
+```
+
+```csharp
+private bool API_GroupExists(string group)
+```
+
+Easily edit your `oxide/data/BetterChat.json` file using the [BetterChat Group Manager](https://files.laserhydra.com/tools/groupmanager/Install%20BetterChat%20GroupManager.exe) *(Windows only)*.
