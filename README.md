@@ -100,17 +100,4 @@ private ChatGroup.SetFieldResult? API_SetGroupField(string group, string field, 
 private bool API_GroupExists(string group)
 ```
 
-## Better Chat Addons
-
-- Better Chat Filter
-- Better Chat Flood
-- Better Chat Ignore for Rust
-- Better Chat Mute
-- Clan Tags
-
-## Plugins Using Better Chat
-
-- Player Challenges for Rust
-- Player Rankings for Rust
-
 Easily edit your `oxide/data/BetterChat.json` file using the [BetterChat Group Manager](https://files.laserhydra.com/tools/groupmanager/Install%20BetterChat%20GroupManager.exe) ***(Windows only)***.
