@@ -18,15 +18,9 @@ All arguments inside **[ ]** are optional! **[time]** should be a formatted time
 
 ## Permissions
 
-This plugin uses Oxide's permission system. To assign a permission, use `oxide.grant user <name or steam id> <permission>`. To remove a permission, use `oxide.revoke user <name or steam id> <permission>`.
-
 - **betterchat.admin** -- Required to use the the `chat` command
 
 ## Configuration
-
-You can configure the settings in the `BetterChat.json` file under the `oxide/config` directory. It's recommended to use a JSON editor for editing the config file or validation site such as jsonlint.com to prevent syntax errors.
-
-The file should look like this (in a code/text editor):
 
 ```json
 {
