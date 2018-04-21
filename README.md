@@ -184,10 +184,15 @@ private bool API_AddGroup(string group)
 
 To get existing chat groups:
 ```csharp
-private List<object> API_GetUserGroups(IPlayer player)
+private List<JObject> API_GetAllGroups(IPlayer player)
 ```
 
-To register a title for a player:
+To get chat groups a player is in:
+```csharp
+private List<JObject> API_GetUserGroups(IPlayer player)
+```
+
+To register a title for players:
 ```csharp
 private void API_RegisterThirdPartyTitle(Plugin plugin, Func<IPlayer, string> titleGetter)
 ```
