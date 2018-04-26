@@ -15,7 +15,7 @@ using Facepunch.Math;
 
 namespace Oxide.Plugins
 {
-    [Info("Better Chat", "LaserHydra", "5.0.18", ResourceId = 979)]
+    [Info("Better Chat", "LaserHydra", "5.0.19", ResourceId = 979)]
     [Description("Manage Chat Groups, Customize Colors And Add Titles.")]
     internal class BetterChat : CovalencePlugin
     {
@@ -34,7 +34,7 @@ namespace Oxide.Plugins
             Title =
             {
                 Text  = "[Rust Developer]",
-                Color = "#fa5"
+                Color = "#ffaa55"
             }
         };
 #endif
