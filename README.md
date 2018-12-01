@@ -4,9 +4,9 @@ Easily edit your `oxide/data/BetterChat.json` file using the [BetterChat Group M
 
 **Note:** If you have this plugin installed and you may see somebody called **[Plugin Developer] LaserHydra**, that's me visiting your server.
 
-All arguments inside **[ ]** are optional! **[time]** should be a formatted time. **Ex.** 60m for 60 minutes. **|** stands for 'or'.
-
 ## Commands
+
+All arguments inside **[ ]** are optional! **|** stands for 'or'.
 
 - **chat group add `<group>`** -- Creates a new chat group
 - **chat group remove `<group>`** -- Removes a chat group
@@ -52,27 +52,27 @@ You can do a lot with the formatting of a group. You can customize it with:
 
 ## Chat Group Setup
 
-For setting groups up, use the command 'chat'. If you want to set it up in the chat, you need to grant yourself the permission `betterchat.admin` and prefix the command with a forward slash (/). You can grant yourself the permission by typing the following command into the server console where you replace <name or ID> with your username or ID *(Steam ID for most games)*: `oxide.grant user <name or ID> betterchat.admin` Now you can use the command '/chat' in the chat.
+For setting groups up, use the command 'chat'. If you want to set it up in the chat, you need to grant yourself the permission `betterchat.admin` and prefix the command with a forward slash (/). You can grant yourself the permission by typing the following command into the server console where you replace `<name or ID>` with your username or ID *(Steam ID for most games)*: `oxide.grant user <name or ID> betterchat.admin` Now you can use the command '/chat' in the chat.
 
-First of all, create the group you want. Lets do that with the example of an admin group. *Remember*, if you are setting your groups up in the chat, you need to prefix the command with a forward slash (/).
+First of all, create the group you want. Let's do that with the example of an admin group. *Remember*, if you are setting your groups up in the chat, you need to prefix the command with a forward slash (/).
 
 To create a group, type: `chat group add admin`
 
-You should also set the priority of the group it is very important for the plugin. The priority is basicly the rank of the group and tells Better Chat which group should be prefered if you are in multiple groups.
+You should also set the priority of the group, as it is very important for the plugin. The priority is the rank of the group and tells Better Chat which group should be prefered, if you are in multiple groups.
 
-The lower the number, the higher the actual priority, meaning 0 > 1. As admin is currently our highest priority group, set it to 0, if there is a moderator group too, it'd be most likely set it to 1 there: `chat group set admin priority 0`
+The lower the number, the higher the actual priority, meaning *0 > 1*. As admin is currently our highest priority group, set it to 0, if there is a moderator group too, it'd most likely be set it to 1 there: `chat group set admin priority 0`
 
 Now as the group was created you can add yourself to it. Some games as for example Rust which have admins and moderator levels already, automatically apply you to the "admin" or "moderator" group if you have that admin or moderator level.
 
-To manually add us to the group, use: `chat user add <name or ID> admin`
+To manually add yourself to the group, use: `chat user add <name or ID> admin`
 
 Now as you are in the group, you can give yourself a nice looking title: `chat group set admin title [Admin]`
 
-You can also change the color of the title, lets change it to red: `chat group set admin titlecolor red`
+You can also change the color of the title, for example to red: `chat group set admin titlecolor red`
 
 It's a nice [Admin] now. The colors can be any HEX color code or a common color spelling.
 
-The same with our name: `chat group set admin namecolor red`
+The same with your name: `chat group set admin namecolor red`
 
 To finish it, you should change the priority of the default group which was automatically generated before, to 1 to be a lower priority than admin: `chat group set default priority 1`
 
