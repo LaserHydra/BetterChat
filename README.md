@@ -47,8 +47,11 @@ You can do a lot with the formatting of a group. You can customize it with:
 - **{Date}** = Date Stamp
 - **{Time}** = Time Stamp
 - **{Group}** = Primary Group
+- **{PluginName}** = Titles added by third party plugins*
 
 ... but also just add words, letters, numbers, and symbols to it. You could just put the Title behind the name for example.
+
+\* Third party titles are registered using the build in BetterChat API. An example for one of those titles is `{Clans}` when the [Clans](https://umod.org/plugins/clans) plugin is installed.
 
 ## Chat Group Setup
 
@@ -192,7 +195,7 @@ To get chat groups a player is in:
 private List<JObject> API_GetUserGroups(IPlayer player)
 ```
 
-To register a title for players:
+To register a title for players: (One per plugin, the plugin name is used as replacement tag in the config)
 ```csharp
 private void API_RegisterThirdPartyTitle(Plugin plugin, Func<IPlayer, string> titleGetter)
 ```
