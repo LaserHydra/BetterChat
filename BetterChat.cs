@@ -39,7 +39,7 @@ namespace Oxide.Plugins
         };
 #endif
 
-        #endregion    
+        #endregion
 
         #region Classes
 
@@ -69,6 +69,23 @@ namespace Oxide.Plugins
                     ["Date"] = DateTime.Now.ToString()
                 };
 
+                foreach (var thirdPartyTitle in ThirdPartyTitles)
+                {
+                    try
+                    {
+                        string title = thirdPartyTitle.Value(Player);
+
+                        if (!string.IsNullOrEmpty(title))
+                            replacements.Add(thirdPartyTitle.Key.Name, title);
+                        else
+                            replacements.Add(thirdPartyTitle.Key.Name, "");
+                    }
+                    catch (Exception ex)
+                    {
+                        Instance.PrintError($"Error when trying to get third-party title from plugin '{thirdPartyTitle.Key}'{Environment.NewLine}{ex}");
+                    }
+                }
+
                 output.Chat = Format.Chat;
                 output.Console = Format.Console;
 
@@ -78,11 +95,11 @@ namespace Oxide.Plugins
                     output.Chat = Instance.covalence.FormatText(output.Chat.Replace($"{{{replacement.Key}}}", replacement.Value));
                 }
 
-                if (output.Chat.StartsWith(" "))
-                    output.Chat = output.Chat.Remove(0, 1);
+                output.Chat = Regex.Replace(output.Chat, "[ ]{2,}"," ");
+                output.Chat = output.Chat.Trim();
 
-                if (output.Console.StartsWith(" "))
-                    output.Console = output.Console.Remove(0, 1);
+                output.Console = Regex.Replace(output.Console, "[ ]{2,}"," ");
+                output.Console = output.Console.Trim();
 
                 return output;
             }
@@ -222,21 +239,6 @@ namespace Oxide.Plugins
 
                 titles = titles.GetRange(0, Math.Min(Configuration.MaxTitles, titles.Count));
 
-                foreach (var thirdPartyTitle in ThirdPartyTitles)
-                {
-                    try
-                    {
-                        string title = thirdPartyTitle.Value(player);
-
-                        if (!string.IsNullOrEmpty(title))
-                            titles.Add(title);
-                    }
-                    catch (Exception ex)
-                    {
-                        Instance.PrintError($"Error when trying to get third-party title from plugin '{thirdPartyTitle.Key}'{Environment.NewLine}{ex}");
-                    }
-                }
-
                 return new BetterChatMessage
                 {
                     Player = player,
@@ -316,7 +318,7 @@ namespace Oxide.Plugins
                 public string Chat = "{Title} {Username}: {Message}";
                 public string Console = "{Title} {Username}: {Message}";
             }
-            
+
             public class Field
             {
                 public Func<ChatGroup, object> Getter { get; }
