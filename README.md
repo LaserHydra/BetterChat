@@ -70,7 +70,7 @@ Now as you are in the group, you can give yourself a nice looking title: `chat g
 
 You can also change the color of the title, for example to red: `chat group set admin titlecolor red`
 
-It's a nice [Admin] now. The colors can be any HEX color code or a common color spelling.
+It's a nice red [Admin] now. The colors can be any HEX color code or a common color spelling.
 
 The same with your name: `chat group set admin namecolor red`
 
@@ -144,12 +144,12 @@ The default messages are in the `BetterChat.json` file under the `oxide/lang/en`
 
 ## Frequently Asked Questions
 
-**Question:** Why do clan tags not show?
-**Answer:** Please install the Clan Tags plugin to show them with Better Chat.
-
-**Question:** I can't remove myself from the default/moderator/admin group
-**Answer:** Oxide automatically adds players to their appropriate groups. Everybody is added to the default group. If you are just trying to hide the default title for your admins, please look for the `HiddenIfNotPrimary` setting.
-
+**Question:** Why do clan tags not show?  
+**Answer:** Please install the Clan Tags plugin to show them with Better Chat.  
+  
+**Question:** I can't remove myself from the default/moderator/admin group  
+**Answer:** Oxide automatically adds players to their appropriate groups. Everybody is added to the default group. If you are just trying to hide the default title for your admins, please look for the `HiddenIfNotPrimary` setting.  
+  
 ## For Developers
 
 ### Hooks
@@ -162,16 +162,17 @@ The data dictionary is entirely mutable - Change and return data dictionary to o
 Dictionary<string, object>
 
 - `Player (IPlayer)` - player sending the message
-- `Text (string)` - text sent to chat
+- `Username (string)` - username to be displayed in chat
+- `Message (string)` - message sent to chat
 - `PrimaryGroup (string)` - name of players primary group
 - `BlockedReceivers (List<string>)` - list of userids which should not receive the message
-- `Username (Dictionary<string, object>)`
+- `UsernameSettings (Dictionary<string, object>)`
   - `Color (string)` - color of the username
   - `Size (int)` - font size of the username
-- `Message (Dictionary<string, object>)`
+- `MessageSettings (Dictionary<string, object>)`
   - `Color (string)` - color of the sent text
   - `Size (int)` - font size of the sent text
-- `Format (Dictionary<string, object>)`
+- `FormatSettings (Dictionary<string, object>)`
   - `Chat (string)` - format for chat output
   - `Console (string)` - format for console output
 
