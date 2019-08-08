@@ -16,7 +16,7 @@ using Facepunch.Math;
 
 namespace Oxide.Plugins
 {
-    [Info("Better Chat", "LaserHydra", "5.1.0")]
+    [Info("Better Chat", "LaserHydra", "5.1.1")]
     [Description("Allows to manage chat groups, customize colors and add titles.")]
     internal class BetterChat : CovalencePlugin
     {
@@ -27,6 +27,31 @@ namespace Oxide.Plugins
         private Configuration _config;
         private List<ChatGroup> _chatGroups;
         private Dictionary<Plugin, Func<IPlayer, string>> _thirdPartyTitles = new Dictionary<Plugin, Func<IPlayer, string>>();
+
+        private static readonly string[] _stringReplacements = new string[]
+        {
+#if RUST || HURTWORLD || UNTURNED
+            "<b>", "</b>",
+            "<i>", "</i>",
+            "</size>",
+            "</color>"
+#endif
+        };
+
+        private static readonly Regex[] _regexReplacements = new Regex[]
+        {
+            new Regex(@"<voffset=(?:.|\s)*?>", RegexOptions.Compiled),
+#if RUST || HURTWORLD || UNTURNED
+            new Regex(@"<color=.+?>", RegexOptions.Compiled),
+            new Regex(@"<size=.+?>", RegexOptions.Compiled),
+#elif REIGNOFKINGS || SEVENDAYSTODIE
+            new Regex(@"\[[\w\d]{6}\]", RegexOptions.Compiled),
+#elif RUSTLEGACY
+            new Regex(@"\[color #[\w\d]{6}\]", RegexOptions.Compiled),
+#elif TERRARIA
+            new Regex(@"\[c\/[\w\d]{6}:", RegexOptions.Compiled),
+#endif
+        };
 
         #endregion    
 
@@ -430,34 +455,12 @@ namespace Oxide.Plugins
 
         private static string StripRichText(string text)
         {
-            var stringReplacements = new string[]
-            {
-#if RUST || HURTWORLD || UNTURNED
-                "<b>", "</b>",
-                "<i>", "</i>",
-                "</size>",
-                "</color>"
-#endif
-            };
+            
 
-            var regexReplacements = new Regex[]
-            {
-#if RUST || HURTWORLD || UNTURNED
-                new Regex(@"<color=.+?>"),
-                new Regex(@"<size=.+?>"),
-#elif REIGNOFKINGS || SEVENDAYSTODIE
-                new Regex(@"\[[\w\d]{6}\]"),
-#elif RUSTLEGACY
-                new Regex(@"\[color #[\w\d]{6}\]"),
-#elif TERRARIA
-                new Regex(@"\[c\/[\w\d]{6}:"),
-#endif
-            };
-
-            foreach (var replacement in stringReplacements)
+            foreach (var replacement in _stringReplacements)
                 text = text.Replace(replacement, string.Empty);
 
-            foreach (var replacement in regexReplacements)
+            foreach (var replacement in _regexReplacements)
                 text = replacement.Replace(text, string.Empty);
 
             return Formatter.ToPlaintext(text);
