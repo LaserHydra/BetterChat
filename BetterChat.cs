@@ -16,7 +16,7 @@ using Facepunch.Math;
 
 namespace Oxide.Plugins
 {
-    [Info("Better Chat", "LaserHydra", "5.1.1")]
+    [Info("Better Chat", "LaserHydra", "5.1.2")]
     [Description("Allows to manage chat groups, customize colors and add titles.")]
     internal class BetterChat : CovalencePlugin
     {
@@ -132,7 +132,7 @@ namespace Oxide.Plugins
             RCon.Broadcast(RCon.LogType.Chat, new Chat.ChatEntry
             {
                 Message = output.Console,
-                UserId = Convert.ToUInt64(player.Id),
+                UserId = player.Id,
                 Username = player.Name,
                 Color = chatMessage.UsernameSettings.Color,
                 Time = Epoch.Current
