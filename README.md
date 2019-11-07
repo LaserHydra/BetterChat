@@ -1,6 +1,6 @@
 **Better Chat** replaces the default chat in games by allowing you change and customize player name colors and prefixes. Plugins can add support for this plugin as well for compatibility, as running more than one chat plugin generally won't work otherwise.
 
-Easily edit your `oxide/data/BetterChat.json` file using the [BetterChat Group Manager](https://files.laserhydra.com/tools/groupmanager/Install%20BetterChat%20GroupManager.exe) *(Windows only)*.
+Easily edit your `oxide/data/BetterChat.json` file using the [BetterChat Group Manager](https://files.laserhydra.com/tools/groupmanager/Install BetterChat GroupManager.exe) *(Windows only)*.
 
 **Note:** If you have this plugin installed and you may see somebody called **[Plugin Developer] LaserHydra**, that's me visiting your server.
 
@@ -19,6 +19,20 @@ All arguments inside **[ ]** are optional! **|** stands for 'or'.
 ## Permissions
 
 - **betterchat.admin** -- Required to use the the `chat` command
+
+## Frequently Asked Questions
+
+**Question:** Why do clan tags not show?  
+**Answer:** Please install the Clan Tags plugin to show them with Better Chat.  
+  
+**Question:** What do I need to set the 'priority' for?  
+**Answer:** The priorities are used to determine the player's primary group and the order of titles displayed. For more information about the 'primary group', read "What does 'primary group' mean?" below.  
+  
+**Question:** I can't remove myself from the default/moderator/admin group  
+**Answer:** Oxide automatically adds players to their appropriate groups. Everybody is added to the default group. If you are just trying to hide the default title for your admins, please look for the `HiddenIfNotPrimary` setting.  
+  
+**Question:** What does 'primary group' mean?  
+**Answer:** The primary group is determined by the group's priorities. Out of all the groups the player is a part of, the one with the highest priority (the lowest number) is their primary group.  
 
 ## Configuration
 
@@ -141,14 +155,6 @@ The default messages are in the `BetterChat.json` file under the `oxide/lang/en`
   "Removed From Group": "{player} was removed from group '{group}'."
 }
 ```
-
-## Frequently Asked Questions
-
-**Question:** Why do clan tags not show?  
-**Answer:** Please install the Clan Tags plugin to show them with Better Chat.  
-  
-**Question:** I can't remove myself from the default/moderator/admin group  
-**Answer:** Oxide automatically adds players to their appropriate groups. Everybody is added to the default group. If you are just trying to hide the default title for your admins, please look for the `HiddenIfNotPrimary` setting.  
   
 ## For Developers
 
