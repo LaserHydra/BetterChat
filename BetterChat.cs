@@ -16,7 +16,7 @@ using Facepunch.Math;
 
 namespace Oxide.Plugins
 {
-    [Info("Better Chat", "LaserHydra", "5.1.2")]
+    [Info("Better Chat", "LaserHydra", "5.1.3")]
     [Description("Allows to manage chat groups, customize colors and add titles.")]
     internal class BetterChat : CovalencePlugin
     {
@@ -120,7 +120,7 @@ namespace Oxide.Plugins
 
 #if RUST
             foreach (BasePlayer p in BasePlayer.activePlayerList.Where(p => !blockedReceivers.Contains(p.UserIDString)))
-                p.SendConsoleCommand("chat.add", new object[] { player.Id, output.Chat });
+                p.SendConsoleCommand("chat.add", new object[] { 2, player.Id, output.Chat });
 #else
             foreach (IPlayer p in players.Connected.Where(p => !blockedReceivers.Contains(p.Id)))
                 p.Message(output.Chat);
