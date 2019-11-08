@@ -1,4 +1,4 @@
-﻿using Oxide.Plugins.BetterChatExtensions;
+using Oxide.Plugins.BetterChatExtensions;
 using Oxide.Core.Libraries.Covalence;
 using Oxide.Core.Plugins;
 using System.Text.RegularExpressions;
@@ -9,6 +9,7 @@ using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 
 #if RUST
+using Network;
 using ConVar;
 using Facepunch;
 using Facepunch.Math;
@@ -16,7 +17,7 @@ using Facepunch.Math;
 
 namespace Oxide.Plugins
 {
-    [Info("Better Chat", "LaserHydra", "5.1.3")]
+    [Info("Better Chat", "LaserHydra", "5.1.4")]
     [Description("Allows to manage chat groups, customize colors and add titles.")]
     internal class BetterChat : CovalencePlugin
     {
@@ -81,8 +82,19 @@ namespace Oxide.Plugins
                 _thirdPartyTitles.Remove(plugin);
         }
 
+#if RUST
+        private object OnPlayerChat(ConsoleSystem.Arg arg)
+        {
+            BasePlayer bplayer = arg.Connection.player as BasePlayer;
+            IPlayer player = bplayer?.IPlayer;
+            if (player == null)
+                return null;
+
+            string message = arg.GetString(1);
+#else
         private object OnUserChat(IPlayer player, string message)
         {
+#endif
             if (message.Length > _instance._config.MaxMessageLength)
                 message = message.Substring(0, _instance._config.MaxMessageLength);
 
@@ -119,8 +131,34 @@ namespace Oxide.Plugins
             List<string> blockedReceivers = chatMessageDict["BlockedReceivers"] as List<string>;
 
 #if RUST
-            foreach (BasePlayer p in BasePlayer.activePlayerList.Where(p => !blockedReceivers.Contains(p.UserIDString)))
-                p.SendConsoleCommand("chat.add", new object[] { 2, player.Id, output.Chat });
+            int chatchannel = arg.GetInt(0, 0);
+            switch ((Chat.ChatChannel)chatchannel)
+            {
+                case Chat.ChatChannel.Team:
+                    RelationshipManager.PlayerTeam team = BasePlayer.Find(player.Id).Team;
+                    if (team == null || team.members.Count == 0)
+                    {
+                        return true;
+                    }
+
+                    List<Connection> onlineMemberConnections = new List<Connection>();
+                    foreach (ulong userID in team.members)
+                    {
+                        BasePlayer basePlayer = RelationshipManager.FindByID(userID);
+                        if (!(basePlayer == null) && basePlayer.Connection != null && !blockedReceivers.Contains(basePlayer.UserIDString))
+                        {
+                            onlineMemberConnections.Add(basePlayer.Connection);
+                        }
+                    }
+
+                    ConsoleNetwork.SendClientCommand(onlineMemberConnections, "chat.add", new object[] { chatchannel, player.Id, output.Chat });
+                    break;
+
+                default:
+                    foreach (BasePlayer p in BasePlayer.activePlayerList.Where(p => !blockedReceivers.Contains(p.UserIDString)))
+                        p.SendConsoleCommand("chat.add", new object[] { chatchannel, player.Id, output.Chat });
+                    break;
+            }
 #else
             foreach (IPlayer p in players.Connected.Where(p => !blockedReceivers.Contains(p.Id)))
                 p.Message(output.Chat);
@@ -131,6 +169,7 @@ namespace Oxide.Plugins
 #if RUST
             RCon.Broadcast(RCon.LogType.Chat, new Chat.ChatEntry
             {
+                Channel = (Chat.ChatChannel)chatchannel,
                 Message = output.Console,
                 UserId = player.Id,
                 Username = player.Name,
@@ -157,9 +196,9 @@ namespace Oxide.Plugins
             return true;
         }
 
-	    private List<JObject> API_GetAllGroups() => _chatGroups.ConvertAll(JObject.FromObject);
+        private List<JObject> API_GetAllGroups() => _chatGroups.ConvertAll(JObject.FromObject);
 
-		private List<JObject> API_GetUserGroups(IPlayer player) => ChatGroup.GetUserGroups(player).ConvertAll(JObject.FromObject);
+        private List<JObject> API_GetUserGroups(IPlayer player) => ChatGroup.GetUserGroups(player).ConvertAll(JObject.FromObject);
 
         private bool API_GroupExists(string group) => ChatGroup.Find(group) != null;
 
@@ -167,9 +206,9 @@ namespace Oxide.Plugins
 
         private Dictionary<string, object> API_GetGroupFields(string group) => ChatGroup.Find(group)?.GetFields() ?? new Dictionary<string, object>();
 
-		private Dictionary<string, object> API_GetMessageData(IPlayer player, string message) => ChatGroup.FormatMessage(player, message)?.ToDictionary();
+        private Dictionary<string, object> API_GetMessageData(IPlayer player, string message) => ChatGroup.FormatMessage(player, message)?.ToDictionary();
 
-		private string API_GetFormattedUsername(IPlayer player)
+        private string API_GetFormattedUsername(IPlayer player)
         {
             var primary = ChatGroup.GetUserPrimaryGroup(player);
 
