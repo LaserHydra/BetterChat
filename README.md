@@ -14,7 +14,6 @@ All arguments inside **[ ]** are optional! **|** stands for 'or'.
 - **chat group list** -- Lists all chat groups
 - **chat user add `<player|steamid> <group>`** -- Adds a player to a chat group
 - **chat user remove `<player|steamid> <group>`** -- Removes a player from a chat group
-- **chat user groups `<player|steamid>`** -- List the chat groups of a player
 
 ## Permissions
 
