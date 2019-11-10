@@ -169,6 +169,7 @@ Dictionary<string, object>
 - `Player (IPlayer)` - player sending the message
 - `Username (string)` - username to be displayed in chat
 - `Message (string)` - message sent to chat
+- `ChatChannel (Chat.ChatChannel)` - IMMUTABLE & RUST ONLY : the channel the message is sent to
 - `PrimaryGroup (string)` - name of players primary group
 - `BlockedReceivers (List<string>)` - list of userids which should not receive the message
 - `UsernameSettings (Dictionary<string, object>)`
