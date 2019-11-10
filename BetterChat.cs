@@ -17,7 +17,7 @@ using Facepunch.Math;
 
 namespace Oxide.Plugins
 {
-    [Info("Better Chat", "LaserHydra", "5.1.4")]
+    [Info("Better Chat", "LaserHydra", "5.1.5")]
     [Description("Allows to manage chat groups, customize colors and add titles.")]
     internal class BetterChat : CovalencePlugin
     {
@@ -90,6 +90,7 @@ namespace Oxide.Plugins
             if (player == null)
                 return null;
 
+            int chatchannel = arg.GetInt(0, 0);
             string message = arg.GetString(1);
 #else
         private object OnUserChat(IPlayer player, string message)
@@ -104,7 +105,9 @@ namespace Oxide.Plugins
                 return null;
 
             Dictionary<string, object> chatMessageDict = chatMessage.ToDictionary();
-
+#if RUST
+            chatMessageDict.Add("ChatChannel", chatchannel);
+#endif
             foreach (Plugin plugin in plugins.GetAll())
             {
                 object hookResult = plugin.CallHook("OnBetterChat", chatMessageDict);
@@ -131,7 +134,6 @@ namespace Oxide.Plugins
             List<string> blockedReceivers = chatMessageDict["BlockedReceivers"] as List<string>;
 
 #if RUST
-            int chatchannel = arg.GetInt(0, 0);
             switch ((Chat.ChatChannel)chatchannel)
             {
                 case Chat.ChatChannel.Team:
