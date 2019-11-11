@@ -1,3 +1,5 @@
+#define RUST
+
 using Oxide.Plugins.BetterChatExtensions;
 using Oxide.Core.Libraries.Covalence;
 using Oxide.Core.Plugins;
@@ -17,7 +19,7 @@ using Facepunch.Math;
 
 namespace Oxide.Plugins
 {
-    [Info("Better Chat", "LaserHydra", "5.1.´6")]
+    [Info("Better Chat", "LaserHydra", "5.1.7")]
     [Description("Allows to manage chat groups, customize colors and add titles.")]
     internal class BetterChat : CovalencePlugin
     {
