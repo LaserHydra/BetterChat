@@ -1,5 +1,3 @@
-#define RUST
-
 using Oxide.Plugins.BetterChatExtensions;
 using Oxide.Core.Libraries.Covalence;
 using Oxide.Core.Plugins;
