@@ -7,6 +7,7 @@ using System.Linq;
 using System;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
+using Rust.Ai.HTN.Bear.Reasoners;
 
 #if RUST
 using Network;
@@ -17,7 +18,7 @@ using Facepunch.Math;
 
 namespace Oxide.Plugins
 {
-    [Info("Better Chat", "LaserHydra", "5.1.8")]
+    [Info("Better Chat", "LaserHydra", "5.2.0")]
     [Description("Allows to manage chat groups, customize colors and add titles.")]
     internal class BetterChat : CovalencePlugin
     {
@@ -128,9 +129,17 @@ namespace Oxide.Plugins
             }
 
             chatMessage = BetterChatMessage.FromDictionary(chatMessageDict);
-            var output = chatMessage.GetOutput();
 
-            List<string> blockedReceivers = chatMessageDict["BlockedReceivers"] as List<string>;
+            switch (chatMessage.CancelOption)
+            {
+                case BetterChatMessage.CancelOptions.BetterChatOnly:
+                    return null;
+
+                case BetterChatMessage.CancelOptions.BetterChatAndDefault:
+                    return true;
+            }
+
+            var output = chatMessage.GetOutput();
 
 #if RUST
             switch ((Chat.ChatChannel)chatchannel)
@@ -146,7 +155,7 @@ namespace Oxide.Plugins
                     foreach (ulong userID in team.members)
                     {
                         BasePlayer basePlayer = RelationshipManager.FindByID(userID);
-                        if (!(basePlayer == null) && basePlayer.Connection != null && !blockedReceivers.Contains(basePlayer.UserIDString))
+                        if (!(basePlayer == null) && basePlayer.Connection != null && !chatMessage.BlockedReceivers.Contains(basePlayer.UserIDString))
                         {
                             onlineMemberConnections.Add(basePlayer.Connection);
                         }
@@ -156,12 +165,12 @@ namespace Oxide.Plugins
                     break;
 
                 default:
-                    foreach (BasePlayer p in BasePlayer.activePlayerList.Where(p => !blockedReceivers.Contains(p.UserIDString)))
+                    foreach (BasePlayer p in BasePlayer.activePlayerList.Where(p => !chatMessage.BlockedReceivers.Contains(p.UserIDString)))
                         p.SendConsoleCommand("chat.add", new object[] { (int) chatchannel, player.Id, output.Chat });
                     break;
             }
 #else
-            foreach (IPlayer p in players.Connected.Where(p => !blockedReceivers.Contains(p.Id)))
+            foreach (IPlayer p in players.Connected.Where(p => !chatMessage.BlockedReceivers.Contains(p.Id)))
                 p.Message(output.Chat);
 #endif
 
@@ -573,8 +582,9 @@ namespace Oxide.Plugins
             public string PrimaryGroup;
             public ChatGroup.UsernameSettings UsernameSettings;
             public ChatGroup.MessageSettings MessageSettings;
-            public ChatGroup.FormatSettings Format;
+            public ChatGroup.FormatSettings FormatSettings;
             public List<string> BlockedReceivers = new List<string>();
+            public CancelOptions CancelOption;
 
             public ChatGroup.FormatSettings GetOutput()
             {
@@ -591,8 +601,8 @@ namespace Oxide.Plugins
                     ["Date"] = DateTime.Now.ToString()
                 };
 
-                output.Chat = Format.Chat;
-                output.Console = Format.Console;
+                output.Chat = FormatSettings.Chat;
+                output.Console = FormatSettings.Console;
 
                 foreach (var replacement in replacements)
                 {
@@ -611,60 +621,69 @@ namespace Oxide.Plugins
 
             public static BetterChatMessage FromDictionary(Dictionary<string, object> dictionary)
             {
-                var usernameSettings = dictionary["UsernameSettings"] as Dictionary<string, object>;
-                var messageSettings = dictionary["MessageSettings"] as Dictionary<string, object>;
-                var formatSettings = dictionary["FormatSettings"] as Dictionary<string, object>;
+                var usernameSettings = dictionary[nameof(UsernameSettings)] as Dictionary<string, object>;
+                var messageSettings = dictionary[nameof(MessageSettings)] as Dictionary<string, object>;
+                var formatSettings = dictionary[nameof(FormatSettings)] as Dictionary<string, object>;
 
                 return new BetterChatMessage
                 {
-                    Player = dictionary["Player"] as IPlayer,
-                    Message = dictionary["Message"] as string,
-                    Username = dictionary["Username"] as string,
-                    Titles = dictionary["Titles"] as List<string>,
-                    PrimaryGroup = dictionary["PrimaryGroup"] as string,
-                    BlockedReceivers = dictionary["BlockedReceivers"] as List<string>,
+                    Player = dictionary[nameof(Player)] as IPlayer,
+                    Message = dictionary[nameof(Message)] as string,
+                    Username = dictionary[nameof(Username)] as string,
+                    Titles = dictionary[nameof(Titles)] as List<string>,
+                    PrimaryGroup = dictionary[nameof(PrimaryGroup)] as string,
+                    BlockedReceivers = dictionary[nameof(BlockedReceivers)] as List<string>,
                     UsernameSettings = new ChatGroup.UsernameSettings
                     {
-                        Color = usernameSettings["Color"] as string,
-                        Size = (int)usernameSettings["Size"]
+                        Color = usernameSettings[nameof(ChatGroup.UsernameSettings.Color)] as string,
+                        Size = (int)usernameSettings[nameof(ChatGroup.UsernameSettings.Size)]
                     },
                     MessageSettings = new ChatGroup.MessageSettings
                     {
-                        Color = messageSettings["Color"] as string,
-                        Size = (int)messageSettings["Size"]
+                        Color = messageSettings[nameof(ChatGroup.MessageSettings.Color)] as string,
+                        Size = (int)messageSettings[nameof(ChatGroup.MessageSettings.Size)]
                     },
-                    Format = new ChatGroup.FormatSettings
+                    FormatSettings = new ChatGroup.FormatSettings
                     {
-                        Chat = formatSettings["Chat"] as string,
-                        Console = formatSettings["Console"] as string
-                    }
+                        Chat = formatSettings[nameof(ChatGroup.FormatSettings.Chat)] as string,
+                        Console = formatSettings[nameof(ChatGroup.FormatSettings.Console)] as string
+                    },
+                    CancelOption = (CancelOptions) dictionary[nameof(CancelOption)]
                 };
             }
 
             public Dictionary<string, object> ToDictionary() => new Dictionary<string, object>
             {
-                ["Player"] = Player,
-                ["Message"] = Message,
-                ["Username"] = Username,
-                ["Titles"] = Titles,
-                ["PrimaryGroup"] = PrimaryGroup,
-                ["BlockedReceivers"] = BlockedReceivers,
-                ["UsernameSettings"] = new Dictionary<string, object>
+                [nameof(Player)] = Player,
+                [nameof(Message)] = Message,
+                [nameof(Username)] = Username,
+                [nameof(Titles)] = Titles,
+                [nameof(PrimaryGroup)] = PrimaryGroup,
+                [nameof(BlockedReceivers)] = BlockedReceivers,
+                [nameof(UsernameSettings)] = new Dictionary<string, object>
                 {
-                    ["Color"] = UsernameSettings.Color,
-                    ["Size"] = UsernameSettings.Size
+                    [nameof(ChatGroup.UsernameSettings.Color)] = UsernameSettings.Color,
+                    [nameof(ChatGroup.UsernameSettings.Size)] = UsernameSettings.Size
                 },
-                ["MessageSettings"] = new Dictionary<string, object>
+                [nameof(MessageSettings)] = new Dictionary<string, object>
                 {
-                    ["Color"] = MessageSettings.Color,
-                    ["Size"] = MessageSettings.Size
+                    [nameof(ChatGroup.MessageSettings.Color)] = MessageSettings.Color,
+                    [nameof(ChatGroup.MessageSettings.Size)] = MessageSettings.Size
                 },
-                ["FormatSettings"] = new Dictionary<string, object>
+                [nameof(FormatSettings)] = new Dictionary<string, object>
                 {
-                    ["Chat"] = Format.Chat,
-                    ["Console"] = Format.Console
-                }
+                    [nameof(ChatGroup.FormatSettings.Chat)] = FormatSettings.Chat,
+                    [nameof(ChatGroup.FormatSettings.Console)] = FormatSettings.Console
+                },
+                [nameof(CancelOption)] = CancelOption
             };
+
+            public enum CancelOptions
+            {
+                None = 0,
+                BetterChatOnly = 1,
+                BetterChatAndDefault = 2
+            }
         }
 
         public class ChatGroup
@@ -791,7 +810,7 @@ namespace Oxide.Plugins
                     PrimaryGroup = primary.GroupName,
                     UsernameSettings = primary.Username,
                     MessageSettings = primary.Message,
-                    Format = primary.Format
+                    FormatSettings = primary.Format
                 };
             }
 
