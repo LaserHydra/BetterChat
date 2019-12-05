@@ -1,8 +1,6 @@
 **Better Chat** replaces the default chat in games by allowing you change and customize player name colors and prefixes. Plugins can add support for this plugin as well for compatibility, as running more than one chat plugin generally won't work otherwise.
 
-Easily edit your `oxide/data/BetterChat.json` file using the [BetterChat Group Manager](https://files.laserhydra.com/tools/groupmanager/Install BetterChat GroupManager.exe) *(Windows only)*.
-
-**Note:** If you have this plugin installed and you may see somebody called **[Plugin Developer] LaserHydra**, that's me visiting your server.
+Easily edit your `oxide/data/BetterChat.json` file using the [BetterChat Group Manager](https://files.laserhydra.com/tools/groupmanager/Install BetterChat GroupManager.exe) *(Windows only)*.  
 
 ## Commands
 
@@ -181,6 +179,10 @@ Dictionary<string, object>
 - `FormatSettings (Dictionary<string, object>)`
   - `Chat (string)` - format for chat output
   - `Console (string)` - format for console output
+- `CancelOption (int/ChatMessage.CancelOptions)`
+  - `0` - don't cancel
+  - `1` - cancel BetterChat handling only; default game chat won't be cancelled
+  - `2` - cancel both BetterChat handling & default game chat
 
 ### API Calls
 
