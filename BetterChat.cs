@@ -15,9 +15,13 @@ using Facepunch;
 using Facepunch.Math;
 #endif
 
+// TODO: Improve string usage by using stringbuilders
+// TODO: Differentiate between channels in console messages
+// TODO: Add "name" or "identifier" format for third-party plugins to obtain a formatted identifier
+
 namespace Oxide.Plugins
 {
-    [Info("Better Chat", "LaserHydra", "5.2.1")]
+    [Info("Better Chat", "LaserHydra", "5.2.2")]
     [Description("Allows to manage chat groups, customize colors and add titles.")]
     internal class BetterChat : CovalencePlugin
     {
@@ -136,7 +140,7 @@ namespace Oxide.Plugins
             var output = chatMessage.GetOutput();
 
 #if RUST
-            switch ((Chat.ChatChannel)chatchannel)
+            switch (chatchannel)
             {
                 case Chat.ChatChannel.Team:
                     RelationshipManager.PlayerTeam team = BasePlayer.Find(player.Id).Team;
@@ -168,18 +172,22 @@ namespace Oxide.Plugins
                 p.Message(output.Chat);
 #endif
 
-            Puts(output.Console);
+
 
 #if RUST
+            Puts($"[{chatchannel}] {output.Console}");
+
             RCon.Broadcast(RCon.LogType.Chat, new Chat.ChatEntry
             {
-                Channel = (Chat.ChatChannel)chatchannel,
+                Channel = chatchannel,
                 Message = output.Console,
                 UserId = player.Id,
                 Username = player.Name,
                 Color = chatMessage.UsernameSettings.Color,
                 Time = Epoch.Current
             });
+#else
+            Puts(output.Console);
 #endif
 
             return true;
