@@ -16,7 +16,6 @@ using Facepunch.Math;
 #endif
 
 // TODO: Improve string usage by using stringbuilders
-// TODO: Differentiate between channels in console messages
 // TODO: Add "name" or "identifier" format for third-party plugins to obtain a formatted identifier
 
 namespace Oxide.Plugins
