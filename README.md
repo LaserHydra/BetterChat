@@ -20,7 +20,7 @@ All arguments inside **[ ]** are optional! **|** stands for 'or'.
 ## Frequently Asked Questions
 
 **Question:** Why do all chat messages appear twice?  
-**Answer::** You have another chat plugin installed, which isn't compatible with Better Chat. A usual suspect for this is `No Green`. Think about whether you really need that other plugin. No Green for example, can be easily recreated using Better Chat.  
+**Answer:** You have another chat plugin installed, which isn't compatible with Better Chat. A usual suspect for this is `No Green`. Think about whether you really need that other plugin. No Green for example, can be easily recreated using Better Chat.  
 
 **Question:** Why do clan tags not show?  
 **Answer:** You might have to install the `Clan Tags` plugin to show them with Better Chat.  
