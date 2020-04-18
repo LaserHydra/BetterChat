@@ -19,8 +19,11 @@ All arguments inside **[ ]** are optional! **|** stands for 'or'.
 
 ## Frequently Asked Questions
 
+**Question:** Why do all chat messages appear twice?  
+**Answer:** You have another chat plugin installed, which isn't compatible with Better Chat. A usual suspect for this is `No Green`. Think about whether you really need that other plugin. No Green for example, can be easily recreated using Better Chat.  
+
 **Question:** Why do clan tags not show?  
-**Answer:** Please install the Clan Tags plugin to show them with Better Chat.  
+**Answer:** You might have to install the `Clan Tags` plugin to show them with Better Chat.  
   
 **Question:** What do I need to set the 'priority' for?  
 **Answer:** The priorities are used to determine the player's primary group and the order of titles displayed. For more information about the 'primary group', read "What does 'primary group' mean?" below.  
