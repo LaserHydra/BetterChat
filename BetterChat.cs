@@ -20,7 +20,7 @@ using Facepunch.Math;
 
 namespace Oxide.Plugins
 {
-    [Info("Better Chat", "LaserHydra", "5.2.2")]
+    [Info("Better Chat", "LaserHydra", "5.2.3")]
     [Description("Allows to manage chat groups, customize colors and add titles.")]
     internal class BetterChat : CovalencePlugin
     {
@@ -245,7 +245,8 @@ namespace Oxide.Plugins
 
             if (args.Length == 0)
             {
-                player.Reply($"{cmd} <group|user>");
+                player.Reply($"{cmd} group <add|remove|set|list>");
+                player.Reply($"{cmd} user <add|remove>");
                 return;
             }
 
@@ -409,10 +410,16 @@ namespace Oxide.Plugins
                     group.RemoveUser(targetPlayer);
                     player.ReplyLang("Removed From Group", new Dictionary<string, string> { ["player"] = targetPlayer.Name, ["group"] = groupName });
                 },
-                ["user"] = a => player.Reply($"Syntax: {cmd} user <add|remove>")
+                ["user"] = a => player.Reply($"Syntax: {cmd} user <add|remove>"),
+                [string.Empty] = a =>
+                {
+                    player.Reply($"{cmd} group <add|remove|set|list>");
+                    player.Reply($"{cmd} user <add|remove>");
+                }
             };
 
             var command = commands.First(c => argsStr.ToLower().StartsWith(c.Key));
+
             string remainingArgs = argsStr.Remove(0, command.Key.Length);
 
             command.Value(remainingArgs.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).ToArray());
@@ -568,6 +575,9 @@ namespace Oxide.Plugins
 
             [JsonProperty("Maximal Characters Per Message")]
             public int MaxMessageLength { get; set; } = 128;
+
+            [JsonProperty("Reverse Title Order")]
+            public bool ReverseTitleOrder { get; set; } = false;
         }
 
         #endregion
@@ -786,6 +796,11 @@ namespace Oxide.Plugins
                               .ToList();
 
                 titles = titles.GetRange(0, Math.Min(_instance._config.MaxTitles, titles.Count));
+
+                if (_instance._config.ReverseTitleOrder)
+                {
+                    titles.Reverse();
+                }   
 
                 foreach (var thirdPartyTitle in _instance._thirdPartyTitles)
                 {
