@@ -39,7 +39,8 @@ All arguments inside **[ ]** are optional! **|** stands for 'or'.
 ```json
 {
   "Maximal Characters Per Message": 128,
-  "Maximal Titles": 3
+  "Maximal Titles": 3,
+  "Reverse Title Order": false
 }
 ```
 
