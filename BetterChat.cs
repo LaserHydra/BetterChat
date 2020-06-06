@@ -13,6 +13,7 @@ using Network;
 using ConVar;
 using Facepunch;
 using Facepunch.Math;
+using CompanionServer;
 #endif
 
 // TODO: Improve string usage by using stringbuilders
@@ -20,7 +21,7 @@ using Facepunch.Math;
 
 namespace Oxide.Plugins
 {
-    [Info("Better Chat", "LaserHydra", "5.2.3")]
+    [Info("Better Chat", "LaserHydra", "5.2.5")]
     [Description("Allows to manage chat groups, customize colors and add titles.")]
     internal class BetterChat : CovalencePlugin
     {
@@ -142,23 +143,19 @@ namespace Oxide.Plugins
             switch (chatchannel)
             {
                 case Chat.ChatChannel.Team:
-                    RelationshipManager.PlayerTeam team = BasePlayer.Find(player.Id).Team;
+                    RelationshipManager.PlayerTeam team = bplayer.Team;
                     if (team == null || team.members.Count == 0)
                     {
                         return true;
                     }
 
-                    List<Connection> onlineMemberConnections = new List<Connection>();
-                    foreach (ulong userID in team.members)
-                    {
-                        BasePlayer basePlayer = RelationshipManager.FindByID(userID);
-                        if (!(basePlayer == null) && basePlayer.Connection != null && !chatMessage.BlockedReceivers.Contains(basePlayer.UserIDString))
-                        {
-                            onlineMemberConnections.Add(basePlayer.Connection);
-                        }
-                    }
+                    team.BroadcastTeamChat(bplayer.userID, player.Name, chatMessage.Message, chatMessage.UsernameSettings.Color);
 
-                    ConsoleNetwork.SendClientCommand(onlineMemberConnections, "chat.add", new object[] { (int) chatchannel, player.Id, output.Chat });
+                    List<Network.Connection> onlineMemberConnections = team.GetOnlineMemberConnections();
+                    if (onlineMemberConnections != null)
+                    {
+                        ConsoleNetwork.SendClientCommand(onlineMemberConnections, "chat.add", new object[] { (int) chatchannel, player.Id, output.Chat });
+                    }
                     break;
 
                 default:
