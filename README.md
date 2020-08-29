@@ -112,31 +112,29 @@ Here, the same rules of editing apply as for the configuration file.
 The default group file should look like this:
 
 ```json
-[
-  {
+[{
   "GroupName": "default",
   "Priority": 0,
   "Title": {
-  "Text": "[Player]",
-  "Color": "#55aaff",
-  "Size": 15,
-  "Hidden": false,
-  "HiddenIfNotPrimary": false
+    "Text": "[Player]",
+    "Color": "#55aaff",
+    "Size": 15,
+    "Hidden": false,
+    "HiddenIfNotPrimary": false
   },
   "Username": {
-  "Color": "#55aaff",
-  "Size": 15
+    "Color": "#55aaff",
+    "Size": 15
   },
   "Message": {
-  "Color": "white",
-  "Size": 15
+    "Color": "white",
+    "Size": 15
   },
   "Format": {
-  "Chat": "{Title} {Username}: {Message}",
-  "Console": "{Title} {Username}: {Message}"
+    "Chat": "{Title} {Username}: {Message}",
+    "Console": "{Title} {Username}: {Message}"
   }
-  }
-]
+}]
 ```
 
 ## Localization
