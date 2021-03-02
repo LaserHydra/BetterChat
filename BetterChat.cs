@@ -754,7 +754,7 @@ namespace Oxide.Plugins
 #if RUST
                 BasePlayer bPlayer = BasePlayer.Find(player.Id);
 
-                if (bPlayer?.IsDeveloper ?? false)
+                if (bPlayer.IsValid() && DeveloperList.Contains(bPlayer.userID))
                     groups.Add(_rustDeveloperGroup);
 #endif
 
