@@ -286,6 +286,15 @@ namespace Oxide.Plugins
             return console ? output.Console : output.Chat;
         }
 
+        private BetterChatMessage.CancelOptions API_SendMessage(Dictionary<string, object> betterChatMessageDict, int chatChannel = 0)
+        {
+#if RUST
+            return SendBetterChatMessage(BetterChatMessage.FromDictionary(betterChatMessageDict), (Chat.ChatChannel)chatChannel);
+#else
+            return SendBetterChatMessage(BetterChatMessage.FromDictionary(betterChatMessageDict));
+#endif
+        }
+
         private void API_RegisterThirdPartyTitle(Plugin plugin, Func<IPlayer, string> titleGetter) => _thirdPartyTitles[plugin] = titleGetter;
 
         #endregion
