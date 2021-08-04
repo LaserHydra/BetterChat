@@ -11,6 +11,7 @@ using Newtonsoft.Json;
 #if RUST
 using ConVar;
 using Facepunch;
+using Facepunch.CardGames;
 using Facepunch.Math;
 using CompanionServer;
 #endif
@@ -184,17 +185,27 @@ namespace Oxide.Plugins
                 
                 case Chat.ChatChannel.Cards:
                     CardTable cardTable = basePlayer.GetMountedVehicle() as CardTable;
-                    if (cardTable == null || !cardTable.GameController.PlayerIsInGame(basePlayer))
+
+                    if (cardTable == null /* || !cardTable.GameController.PlayerIsInGame(basePlayer) */)
                     {
                        throw new InvalidOperationException("Chat channel is set to Cards, however the player is not in a participating in a card game.");
                     }
                     
                     List<Network.Connection> list = Facepunch.Pool.GetList<Network.Connection>();
-                    cardTable.GameController.GetConnectionsInGame(list);
+
+                    foreach (CardPlayerData playerData in cardTable.GameController.playerData)
+                    {
+                        if (playerData.HasUser)
+                        {
+                            list.Add(BasePlayer.FindByID(playerData.UserID).net.connection);   
+                        }
+                    }
+                    
                     if (list.Count > 0)
                     {
                         ConsoleNetwork.SendClientCommand(list, "chat.add", (int) chatchannel, chatMessage.Player.Id, output.Chat);
                     }
+                    
                     Facepunch.Pool.FreeList(ref list);
                     break;
 
@@ -555,8 +566,6 @@ namespace Oxide.Plugins
 
         private static string StripRichText(string text)
         {
-            
-
             foreach (var replacement in _stringReplacements)
                 text = text.Replace(replacement, string.Empty);
 
