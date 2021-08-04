@@ -155,16 +155,23 @@ The default messages are in the `BetterChat.json` file under the `oxide/lang/en`
 }
 ```
   
-## For Developers
+## For Developers (API)
 
 ### Hooks
 
+#### OnBetterChat
+
+OnBetterChat is called when Better Chat is trying to send a chat message.
+
 ```csharp
-OnBetterChat(Dictionary<string, object> data)
+private void OnBetterChat(Dictionary<string, object> data)
+{
+    // Your magic here
+}
 ```
 
 The data dictionary is entirely mutable - Change and return data dictionary to override chat message data
-Dictionary<string, object>
+Dictionary<string, object> (also works without returning the dictionary)
 
 - `Player (IPlayer)` - player sending the message
 - `Username (string)` - username to be displayed in chat
@@ -183,47 +190,131 @@ Dictionary<string, object>
   - `Console (string)` - format for console output
 - `CancelOption (int/ChatMessage.CancelOptions)`
   - `0` - don't cancel
-  - `1` - cancel BetterChat handling only; default game chat won't be cancelled
-  - `2` - cancel both BetterChat handling & default game chat
+  - `1` - cancel Better Chat handling only; default game chat won't be cancelled
+  - `2` - cancel both Better Chat handling & default game chat
 
-### API Calls
+### API Methods
 
-To create a new chat group:
+All API methods in Better Chat are prefixed with `API_`.
+(Note: This is just a Better Chat convention.)
+
+#### AddGroup
+Create a new group with the given group name.  
+Returns `true` if the group was created, or `false` if the group already exists.  
+
 ```csharp
-private bool API_AddGroup(string group)
+bool API_AddGroup(string group)
 ```
 
-To get existing chat groups:
+#### GetAllGroups
+Get a list of all groups.  
+The groups are each converted to a `JObject` so your plugin does not need to strictly depend on Better Chat classes.
+
 ```csharp
-private List<JObject> API_GetAllGroups(IPlayer player)
+List<JObject> API_GetAllGroups()
 ```
 
-To get chat groups a player is in:
+#### GetUserGroups
+Get a list of all groups the given player is a part of.  
+The groups are each converted to a `JObject` so your plugin does not need to strictly depend on Better Chat classes.
+
 ```csharp
-private List<JObject> API_GetUserGroups(IPlayer player)
+List<JObject> API_GetUserGroups(IPlayer player)
 ```
 
-To register a title for players:
+#### GroupExists
+Check whether a group with the given name exists.  
+Returns `true` if the group exists, or `false` otherwise.
+
 ```csharp
-private void API_RegisterThirdPartyTitle(Plugin plugin, Func<IPlayer, string> titleGetter)
+bool API_GroupExists(string group)
 ```
 
-To get the formatted message for a player:
+#### SetGroupField
+Change the value of the given setting field for the given group.  
+Returns a `SetValueResult` enum value, or `null` if the group does not exist.
+
 ```csharp
-private string API_GetFormattedMessage(IPlayer player, string message, bool console = false)
+ChatGroup.Field.SetValueResult? API_SetGroupField(string group, string field, string value)
 ```
 
-To get the formatted username for a player:
 ```csharp
-private string API_GetFormattedUsername(IPlayer player)
+enum SetValueResult
+{
+    Success,      // = 0
+    InvalidField, // = 1
+    InvalidValue  // = 2
+}                
 ```
 
-To set a field on a chat group:
+#### GetGroupFields
+Retrieve all setting fields and values for the given group.  
+Returns the group's setting fields and values in a dictionary.
+
 ```csharp
-private ChatGroup.SetFieldResult? API_SetGroupField(string group, string field, string value)
+Dictionary<string, object> API_GetGroupFields(string group)
 ```
 
-To check if a chat group exists:
+#### GetMessageData
+Build a message data dictionary for the given message coming from the given player.  
+Returns a dictionary in the format as used in the `OnBetterChat` hook (see above).
+
 ```csharp
-private bool API_GroupExists(string group)
+Dictionary<string, object> API_GetMessageData(IPlayer player, string message)
+```
+
+#### GetFormattedUsername
+Build a formatted username for the given player, which includes size and color via Oxide's universal rich-text tag notation.    
+Returns a string containing the formatted username for the player. Example: `[#abcdef][+15]LaserHydra[/+][/#]`
+
+```csharp
+string API_GetFormattedUsername(IPlayer player)
+```
+
+#### GetFormattedMessage
+Build a whole formatted message for the given player and message, including titles, name, text, and formatting tags.  
+The parameter `console` specifies whether or not the console format should be used (also excludes formatting).  
+Returns a string containing the whole formatted message for the player.
+
+```csharp
+string API_GetFormattedMessage(IPlayer player, string message, bool console = false)
+```
+
+#### SendMessage
+Send a Better Chat message described by the given `messageData` in the format as used in the `OnBetterChat` hook (see above).  
+The `chatChannel` parameter is currently useful for Rust only, and can be one of the `ConVar.Chat.ChatChannel` enum values as `int`.    
+Returns a value of the `CancelOptions` enum, describing whether the message should be cancelled.
+
+```csharp
+BetterChatMessage.CancelOptions API_SendMessage(Dictionary<string, object> messageData, int chatChannel = 0)
+```
+
+```csharp
+enum ChatChannel
+{
+    Global, // = 0
+    Team,   // = 1
+    Server, // = 2
+    Cards   // = 3
+}
+```
+
+```csharp
+enum CancelOptions
+{
+    None = 0,
+    BetterChatOnly = 1,
+    BetterChatAndDefault = 2
+}
+```
+
+#### RegisterThirdPartyTitle
+Register a title provider for the given plugin (should be the plugin you're calling it from).  
+The `titleGetter` parameter should be a function which returns a `string title` (or null if none) for a given `IPlayer player`.
+
+**Note:** This method should only be called once, likely when your plugins loads.
+The given `titleGetter` will then be invoked whenever Better Chat needs to know what title a certain player should have.
+
+```csharp
+void API_RegisterThirdPartyTitle(Plugin plugin, Func<IPlayer, string> titleGetter)
 ```
