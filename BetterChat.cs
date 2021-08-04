@@ -102,6 +102,32 @@ namespace Oxide.Plugins
             if (chatMessage == null)
                 return null;
 
+#if RUST
+            BetterChatMessage.CancelOptions result = SendBetterChatMessage(chatMessage, chatchannel);
+#else
+            BetterChatMessage.CancelOptions result = SendBetterChatMessage(chatMessage);
+#endif
+
+            switch (result)
+            {
+                case BetterChatMessage.CancelOptions.None:
+                case BetterChatMessage.CancelOptions.BetterChatAndDefault:
+                    return true;
+            }
+
+            return null;
+        }
+
+        #endregion
+
+        #region Messaging
+
+#if RUST
+        private BetterChatMessage.CancelOptions SendBetterChatMessage(BetterChatMessage chatMessage, Chat.ChatChannel chatchannel)
+#else
+        private BetterChatMessage.CancelOptions SendBetterChatMessage(BetterChatMessage chatMessage)
+#endif
+        {
             Dictionary<string, object> chatMessageDict = chatMessage.ToDictionary();
 #if RUST
             chatMessageDict.Add("ChatChannel", chatchannel);
@@ -123,44 +149,58 @@ namespace Oxide.Plugins
                     }
                 }
                 else if (hookResult != null)
-                    return null;
+                    return BetterChatMessage.CancelOptions.BetterChatOnly;
             }
 
             chatMessage = BetterChatMessage.FromDictionary(chatMessageDict);
 
-            switch (chatMessage.CancelOption)
+            if (chatMessage.CancelOption != BetterChatMessage.CancelOptions.None)
             {
-                case BetterChatMessage.CancelOptions.BetterChatOnly:
-                    return null;
-
-                case BetterChatMessage.CancelOptions.BetterChatAndDefault:
-                    return true;
+                return chatMessage.CancelOption;
             }
 
             var output = chatMessage.GetOutput();
 
 #if RUST
+            BasePlayer basePlayer = chatMessage.Player.Object as BasePlayer;
+
             switch (chatchannel)
             {
                 case Chat.ChatChannel.Team:
-                    RelationshipManager.PlayerTeam team = bplayer.Team;
+                    RelationshipManager.PlayerTeam team = basePlayer.Team;
                     if (team == null || team.members.Count == 0)
                     {
-                        return true;
+                        throw new InvalidOperationException("Chat channel is set to Team, however the player is not in a team.");
                     }
 
-                    team.BroadcastTeamChat(bplayer.userID, player.Name, chatMessage.Message, chatMessage.UsernameSettings.Color);
+                    team.BroadcastTeamChat(basePlayer.userID, chatMessage.Player.Name, chatMessage.Message, chatMessage.UsernameSettings.Color);
 
                     List<Network.Connection> onlineMemberConnections = team.GetOnlineMemberConnections();
                     if (onlineMemberConnections != null)
                     {
-                        ConsoleNetwork.SendClientCommand(onlineMemberConnections, "chat.add", new object[] { (int) chatchannel, player.Id, output.Chat });
+                        ConsoleNetwork.SendClientCommand(onlineMemberConnections, "chat.add", (int) chatchannel, chatMessage.Player.Id, output.Chat);
                     }
+                    break;
+                
+                case Chat.ChatChannel.Cards:
+                    CardTable cardTable = basePlayer.GetMountedVehicle() as CardTable;
+                    if (cardTable == null || !cardTable.GameController.PlayerIsInGame(basePlayer))
+                    {
+                       throw new InvalidOperationException("Chat channel is set to Cards, however the player is not in a participating in a card game.");
+                    }
+                    
+                    List<Network.Connection> list = Facepunch.Pool.GetList<Network.Connection>();
+                    cardTable.GameController.GetConnectionsInGame(list);
+                    if (list.Count > 0)
+                    {
+                        ConsoleNetwork.SendClientCommand(list, "chat.add", (int) chatchannel, chatMessage.Player.Id, output.Chat);
+                    }
+                    Facepunch.Pool.FreeList(ref list);
                     break;
 
                 default:
                     foreach (BasePlayer p in BasePlayer.activePlayerList.Where(p => !chatMessage.BlockedReceivers.Contains(p.UserIDString)))
-                        p.SendConsoleCommand("chat.add", new object[] { (int) chatchannel, player.Id, output.Chat });
+                        p.SendConsoleCommand("chat.add", (int) chatchannel, chatMessage.Player.Id, output.Chat);
                     break;
             }
 #else
@@ -168,25 +208,26 @@ namespace Oxide.Plugins
                 p.Message(output.Chat);
 #endif
 
-
-
 #if RUST
             Puts($"[{chatchannel}] {output.Console}");
 
-            RCon.Broadcast(RCon.LogType.Chat, new Chat.ChatEntry
+            var chatEntry = new Chat.ChatEntry
             {
                 Channel = chatchannel,
                 Message = output.Console,
-                UserId = player.Id,
-                Username = player.Name,
+                UserId = chatMessage.Player.Id,
+                Username = chatMessage.Player.Name,
                 Color = chatMessage.UsernameSettings.Color,
                 Time = Epoch.Current
-            });
+            };
+            
+            Chat.History.Add(chatEntry);
+            RCon.Broadcast(RCon.LogType.Chat, chatEntry);
 #else
             Puts(output.Console);
 #endif
 
-            return true;
+            return chatMessage.CancelOption;
         }
 
         #endregion
@@ -790,7 +831,7 @@ namespace Oxide.Plugins
                     groups.Add(primary);
                 }
 
-                groups.Sort((a, b) => b.Priority.CompareTo(a.Priority));
+                groups.Sort((a, b) => a.Priority.CompareTo(b.Priority));
 
                 var titles = (from g in groups
                               where !g.Title.Hidden && !(g.Title.HiddenIfNotPrimary && primary != g)
@@ -802,7 +843,7 @@ namespace Oxide.Plugins
                 if (_instance._config.ReverseTitleOrder)
                 {
                     titles.Reverse();
-                }   
+                }
 
                 foreach (var thirdPartyTitle in _instance._thirdPartyTitles)
                 {
