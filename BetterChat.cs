@@ -9,13 +9,13 @@ using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 
 #if RUST
-using Network;
 using ConVar;
 using Facepunch;
 using Facepunch.Math;
 using CompanionServer;
 #endif
 
+// TODO: Reduce garbage creation
 // TODO: Improve string usage by using stringbuilders
 // TODO: Add "name" or "identifier" format for third-party plugins to obtain a formatted identifier
 
@@ -97,7 +97,7 @@ namespace Oxide.Plugins
             if (message.Length > _instance._config.MaxMessageLength)
                 message = message.Substring(0, _instance._config.MaxMessageLength);
 
-            BetterChatMessage chatMessage = ChatGroup.FormatMessage(player, message);
+            BetterChatMessage chatMessage = ChatGroup.PrepareMessage(player, message);
 
             if (chatMessage == null)
                 return null;
@@ -214,7 +214,7 @@ namespace Oxide.Plugins
 
         private Dictionary<string, object> API_GetGroupFields(string group) => ChatGroup.Find(group)?.GetFields() ?? new Dictionary<string, object>();
 
-        private Dictionary<string, object> API_GetMessageData(IPlayer player, string message) => ChatGroup.FormatMessage(player, message)?.ToDictionary();
+        private Dictionary<string, object> API_GetMessageData(IPlayer player, string message) => ChatGroup.PrepareMessage(player, message).ToDictionary();
 
         private string API_GetFormattedUsername(IPlayer player)
         {
@@ -227,7 +227,12 @@ namespace Oxide.Plugins
             return $"[#{primary.Username.GetUniversalColor()}][+{primary.Username.Size}]{player.Name}[/+][/#]";
         }
 
-        private string API_GetFormattedMessage(IPlayer player, string message, bool console = false) => console ? ChatGroup.FormatMessage(player, message).GetOutput().Console : ChatGroup.FormatMessage(player, message).GetOutput().Chat;
+        private string API_GetFormattedMessage(IPlayer player, string message, bool console = false)
+        {
+            var output = ChatGroup.PrepareMessage(player, message).GetOutput();
+
+            return console ? output.Console : output.Chat;
+        }
 
         private void API_RegisterThirdPartyTitle(Plugin plugin, Func<IPlayer, string> titleGetter) => _thirdPartyTitles[plugin] = titleGetter;
 
@@ -773,14 +778,14 @@ namespace Oxide.Plugins
                 return primary;
             }
 
-            public static BetterChatMessage FormatMessage(IPlayer player, string message)
+            public static BetterChatMessage PrepareMessage(IPlayer player, string message)
             {
                 ChatGroup primary = GetUserPrimaryGroup(player);
                 List<ChatGroup> groups = GetUserGroups(player);
 
                 if (primary == null)
                 {
-                    _instance.PrintWarning($"{player.Name} ({player.Id}) does not seem to be in any BetterChat group - falling back to plugin's default group! This should never happen! Please make sure you have a group called 'default'.");
+                    _instance.PrintWarning($"{player.Name} ({player.Id}) does not seem to be in any BetterChat group - falling back to internal default group! This should never happen! Please make sure you have a group called 'default'.");
                     primary = _fallbackGroup;
                     groups.Add(primary);
                 }
