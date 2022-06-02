@@ -22,7 +22,7 @@ using CompanionServer;
 
 namespace Oxide.Plugins
 {
-    [Info("Better Chat", "LaserHydra", "5.2.7")]
+    [Info("Better Chat", "LaserHydra", "5.2.9")]
     [Description("Allows to manage chat groups, customize colors and add titles.")]
     internal class BetterChat : CovalencePlugin
     {
@@ -59,7 +59,7 @@ namespace Oxide.Plugins
 #endif
         };
 
-        #endregion    
+        #endregion
 
         #region Hooks
 
@@ -182,7 +182,7 @@ namespace Oxide.Plugins
                         ConsoleNetwork.SendClientCommand(onlineMemberConnections, "chat.add", (int) chatchannel, chatMessage.Player.Id, output.Chat);
                     }
                     break;
-                
+
                 case Chat.ChatChannel.Cards:
                     CardTable cardTable = basePlayer.GetMountedVehicle() as CardTable;
 
@@ -190,22 +190,22 @@ namespace Oxide.Plugins
                     {
                        throw new InvalidOperationException("Chat channel is set to Cards, however the player is not in a participating in a card game.");
                     }
-                    
+
                     List<Network.Connection> list = Facepunch.Pool.GetList<Network.Connection>();
 
                     foreach (CardPlayerData playerData in cardTable.GameController.playerData)
                     {
                         if (playerData.HasUser)
                         {
-                            list.Add(BasePlayer.FindByID(playerData.UserID).net.connection);   
+                            list.Add(BasePlayer.FindByID(playerData.UserID).net.connection);
                         }
                     }
-                    
+
                     if (list.Count > 0)
                     {
                         ConsoleNetwork.SendClientCommand(list, "chat.add", (int) chatchannel, chatMessage.Player.Id, output.Chat);
                     }
-                    
+
                     Facepunch.Pool.FreeList(ref list);
                     break;
 
@@ -231,8 +231,8 @@ namespace Oxide.Plugins
                 Color = chatMessage.UsernameSettings.Color,
                 Time = Epoch.Current
             };
-            
-            Chat.History.Add(chatEntry);
+
+            Chat.Record(chatEntry);
             RCon.Broadcast(RCon.LogType.Chat, chatEntry);
 #else
             Puts(output.Console);
@@ -661,6 +661,12 @@ namespace Oxide.Plugins
             public ChatGroup.FormatSettings GetOutput()
             {
                 ChatGroup.FormatSettings output = new ChatGroup.FormatSettings();
+
+                if (Message.Contains("[#") || Message.Contains("[+"))
+                    Message = Message.Replace("[", string.Empty).Replace("]", string.Empty);
+
+                if (Username.Contains("[#") || Username.Contains("[+"))
+                    Username = Username.Replace("[", string.Empty).Replace("]", string.Empty);
 
                 Dictionary<string, string> replacements = new Dictionary<string, string>
                 {
