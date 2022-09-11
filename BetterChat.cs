@@ -22,7 +22,7 @@ using CompanionServer;
 
 namespace Oxide.Plugins
 {
-    [Info("Better Chat", "LaserHydra", "5.2.9")]
+    [Info("Better Chat", "LaserHydra", "5.2.11")]
     [Description("Allows to manage chat groups, customize colors and add titles.")]
     internal class BetterChat : CovalencePlugin
     {
@@ -209,6 +209,23 @@ namespace Oxide.Plugins
                     Facepunch.Pool.FreeList(ref list);
                     break;
 
+                case Chat.ChatChannel.Local: 
+                    float localRange = Chat.localChatRange * Chat.localChatRange;
+                    foreach (BasePlayer player in BasePlayer.activePlayerList)
+                    {
+                        if (chatMessage.BlockedReceivers.Contains(player.UserIDString))
+                        {
+                            continue;
+                        }
+                        
+                        if ((basePlayer.transform.position - player.transform.position).sqrMagnitude <= localRange)
+                        {
+                            player.SendConsoleCommand("chat.add", (int)chatchannel, chatMessage.Player.Id, output.Chat);
+                        }
+                    }
+
+                    break;
+                
                 default:
                     foreach (BasePlayer p in BasePlayer.activePlayerList.Where(p => !chatMessage.BlockedReceivers.Contains(p.UserIDString)))
                         p.SendConsoleCommand("chat.add", (int) chatchannel, chatMessage.Player.Id, output.Chat);
@@ -233,7 +250,6 @@ namespace Oxide.Plugins
             };
 
             Chat.Record(chatEntry);
-            RCon.Broadcast(RCon.LogType.Chat, chatEntry);
 #else
             Puts(output.Console);
 #endif
