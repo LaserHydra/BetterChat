@@ -835,7 +835,7 @@ namespace Oxide.Plugins
             public static List<ChatGroup> GetUserGroups(IPlayer player)
             {
                 string[] oxideGroups = _instance.permission.GetUserGroups(player.Id);
-                var groups = _instance._chatGroups.Where(g => oxideGroups.Any(name => g.GroupName.ToLower() == name)).ToList();
+                var groups = _instance._chatGroups.Where(g => oxideGroups.Any(name => g.GroupName.ToLower() == name.ToLower())).ToList();
 
 #if RUST
                 BasePlayer bPlayer = BasePlayer.Find(player.Id);
