@@ -22,7 +22,7 @@ using CompanionServer;
 
 namespace Oxide.Plugins
 {
-    [Info("Better Chat", "LaserHydra", "5.2.11")]
+    [Info("Better Chat", "LaserHydra", "5.2.12")]
     [Description("Allows to manage chat groups, customize colors and add titles.")]
     internal class BetterChat : CovalencePlugin
     {
@@ -193,7 +193,7 @@ namespace Oxide.Plugins
 
                     List<Network.Connection> list = Facepunch.Pool.GetList<Network.Connection>();
 
-                    foreach (CardPlayerData playerData in cardTable.GameController.playerData)
+                    foreach (CardPlayerData playerData in cardTable.GameController.PlayerData)
                     {
                         if (playerData.HasUser)
                         {
