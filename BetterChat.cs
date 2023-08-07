@@ -22,7 +22,7 @@ using CompanionServer;
 
 namespace Oxide.Plugins
 {
-    [Info("Better Chat", "LaserHydra", "5.2.12")]
+    [Info("Better Chat", "LaserHydra", "5.2.13")]
     [Description("Allows to manage chat groups, customize colors and add titles.")]
     internal class BetterChat : CovalencePlugin
     {
@@ -835,7 +835,7 @@ namespace Oxide.Plugins
             public static List<ChatGroup> GetUserGroups(IPlayer player)
             {
                 string[] oxideGroups = _instance.permission.GetUserGroups(player.Id);
-                var groups = _instance._chatGroups.Where(g => oxideGroups.Any(name => g.GroupName.ToLower() == name)).ToList();
+                var groups = _instance._chatGroups.Where(g => oxideGroups.Any(name => g.GroupName.Equals(name, StringComparison.OrdinalIgnoreCase))).ToList();
 
 #if RUST
                 BasePlayer bPlayer = BasePlayer.Find(player.Id);
