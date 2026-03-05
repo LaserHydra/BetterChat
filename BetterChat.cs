@@ -22,7 +22,7 @@ using CompanionServer;
 
 namespace Oxide.Plugins
 {
-    [Info("Better Chat", "LaserHydra", "5.2.13")]
+    [Info("Better Chat", "LaserHydra", "5.2.15")]
     [Description("Allows to manage chat groups, customize colors and add titles.")]
     internal class BetterChat : CovalencePlugin
     {
@@ -184,16 +184,16 @@ namespace Oxide.Plugins
                     break;
 
                 case Chat.ChatChannel.Cards:
-                    CardTable cardTable = basePlayer.GetMountedVehicle() as CardTable;
+                    BaseCardGameEntity baseCardGame = basePlayer.GetMountedVehicle() as BaseCardGameEntity;
 
-                    if (cardTable == null /* || !cardTable.GameController.PlayerIsInGame(basePlayer) */)
+                    if (baseCardGame == null /* || !cardTable.GameController.PlayerIsInGame(basePlayer) */)
                     {
                        throw new InvalidOperationException("Chat channel is set to Cards, however the player is not in a participating in a card game.");
                     }
 
-                    List<Network.Connection> list = Facepunch.Pool.GetList<Network.Connection>();
+                    List<Network.Connection> list = Facepunch.Pool.Get<List<Network.Connection>>();
 
-                    foreach (CardPlayerData playerData in cardTable.GameController.PlayerData)
+                    foreach (CardPlayerData playerData in baseCardGame.GameController.PlayerData)
                     {
                         if (playerData.HasUser)
                         {
@@ -206,7 +206,34 @@ namespace Oxide.Plugins
                         ConsoleNetwork.SendClientCommand(list, "chat.add", (int) chatchannel, chatMessage.Player.Id, output.Chat);
                     }
 
-                    Facepunch.Pool.FreeList(ref list);
+                    Facepunch.Pool.FreeUnmanaged(ref list);
+                    break;
+
+                case Chat.ChatChannel.Clan:
+                    long clanid = basePlayer.clanId;
+
+                    if (clanid == 0)
+                    {
+                        throw new InvalidOperationException("Chat channel is set to Clan, however the player is not part of a Clan.");
+                    }
+
+                    List<Network.Connection> clanlist = Facepunch.Pool.Get<List<Network.Connection>>();
+
+                    IClan clan = null;
+                    if (ClanManager.ServerInstance.Backend?.TryGet(clanid, out clan) ?? false)
+                    {
+                        foreach (ClanMember member in clan.Members)
+                        {
+                            var player = BasePlayer.FindByID(member.SteamId);
+                            if (player!=null && player.IsConnected) clanlist.Add(player.net.connection);
+                        }
+                    }
+
+                    if (clanlist.Count > 0)
+                    {
+                        ConsoleNetwork.SendClientCommand(clanlist, "chat.add", (int)chatchannel, chatMessage.Player.Id, output.Chat);
+                    }
+                    Facepunch.Pool.FreeUnmanaged(ref clanlist);
                     break;
 
                 case Chat.ChatChannel.Local: 
