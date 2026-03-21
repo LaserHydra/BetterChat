@@ -36,11 +36,17 @@ All arguments inside **[ ]** are optional! **|** stands for 'or'.
 
 ## Configuration
 
+- Maximal Characters Per Message: How many characters you want messages to be limited to.
+- Maximal Titles: How many titles you want included in the message.
+- Reverse Title Order: Reverses the order of the titles. Example: [Admin][VIP] -> [VIP][Admin]
+- Include 3rd Party Titles In Reverse: Common use case is clan tags from Clans or ClansReborn.
+
 ```json
 {
   "Maximal Characters Per Message": 128,
   "Maximal Titles": 3,
-  "Reverse Title Order": false
+  "Reverse Title Order": false,
+  "Include 3rd Party Titles In Reverse": false
 }
 ```
 

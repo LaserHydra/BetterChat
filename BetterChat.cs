@@ -682,6 +682,9 @@ namespace Oxide.Plugins
 
             [JsonProperty("Reverse Title Order")]
             public bool ReverseTitleOrder { get; set; } = false;
+
+            [JsonProperty("Include 3rd Party Titles In Reverse")]
+            public bool IncludeThirdPartyTitlesInReverse { get; set; } = false;
         }
 
         #endregion
@@ -907,7 +910,7 @@ namespace Oxide.Plugins
 
                 titles = titles.GetRange(0, Math.Min(_instance._config.MaxTitles, titles.Count));
 
-                if (_instance._config.ReverseTitleOrder)
+                if (_instance._config.ReverseTitleOrder && !_instance._config.IncludeThirdPartyTitlesInReverse)
                 {
                     titles.Reverse();
                 }
@@ -926,6 +929,11 @@ namespace Oxide.Plugins
                         _instance.PrintError($"Error when trying to get third-party title from plugin '{thirdPartyTitle.Key}'{Environment.NewLine}{ex}");
                     }
                 }
+
+                if (_instance._config.ReverseTitleOrder && _instance._config.IncludeThirdPartyTitlesInReverse)
+                {
+                    titles.Reverse();
+                }   
 
                 return new BetterChatMessage
                 {
